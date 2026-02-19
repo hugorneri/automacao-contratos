@@ -45,7 +45,7 @@ def extrair_dados_ficha(caminho_pdf: str) -> dict:
     dados["EMPRESA_ENDERECO"] = _extrair_campo_entre_labels(linhas, "Endereço", "Empregado")
     
     # --- Nome do empregado ---
-    dados["NOME"] = _extrair_campo_linha(linhas, r"^Empregado\b", offset_linha=1)
+    dados["NOME"] = _extrair_nome_empregado(linhas)
     
     # --- Residência (endereço do empregado) ---
     dados["ENDERECO"] = _extrair_campo_entre_labels(linhas, "Residência", "Data de nascimento")
@@ -118,6 +118,90 @@ def _extrair_campo_linha(linhas: list, pattern: str, offset_linha: int = 1) -> s
                 valor = linhas[idx].strip()
                 return valor
     return ""
+
+
+def _extrair_nome_empregado(linhas: list) -> str:
+    """
+    Extrai apenas o nome do empregado, excluindo beneficiários.
+    Procura pela linha 'Empregado' e extrai apenas o primeiro nome completo,
+    cortando antes de beneficiários que podem estar na mesma linha.
+    """
+    # Encontrar a linha com "Empregado"
+    idx_empregado = None
+    for i, linha in enumerate(linhas):
+        if re.search(r"^Empregado\b", linha.strip(), re.IGNORECASE):
+            idx_empregado = i
+            break
+    
+    if idx_empregado is None:
+        return ""
+    
+    # Pegar a linha seguinte (onde está o nome)
+    idx_nome = idx_empregado + 1
+    if idx_nome >= len(linhas):
+        return ""
+    
+    texto_nome = linhas[idx_nome].strip()
+    
+    # Se a linha seguinte está vazia, tentar a próxima
+    if not texto_nome and idx_nome + 1 < len(linhas):
+        idx_nome += 1
+        texto_nome = linhas[idx_nome].strip()
+    
+    if not texto_nome:
+        return ""
+    
+    # ESTRATÉGIA: Pegar apenas o primeiro nome completo
+    # Beneficiários geralmente aparecem após vírgulas ou quando há múltiplos nomes completos
+    
+    # 1. Remover CPFs e datas que possam estar no texto
+    texto_nome = re.sub(r"\s+\d{3}\.\d{3}\.\d{3}-\d{2}.*$", "", texto_nome)
+    texto_nome = re.sub(r"\s+\d{2}/\d{2}/\d{4}.*$", "", texto_nome)
+    
+    # 2. Verificar se há palavras-chave de beneficiários e cortar antes delas
+    palavras_beneficiario = [
+        r"\bBeneficiário\b",
+        r"\bBeneficiários\b",
+        r"\bDependente\b",
+        r"\bDependentes\b",
+    ]
+    
+    for palavra in palavras_beneficiario:
+        match = re.search(palavra, texto_nome, re.IGNORECASE)
+        if match:
+            texto_nome = texto_nome[:match.start()].strip()
+            break
+    
+    # 3. Dividir por vírgulas - beneficiários geralmente vêm após vírgula
+    partes_virgula = texto_nome.split(',')
+    if len(partes_virgula) > 1:
+        primeira_parte = partes_virgula[0].strip()
+        # Se há vírgula, verificar se antes dela há múltiplos nomes
+        palavras_antes_virgula = primeira_parte.split()
+        
+        # Se antes da vírgula há mais de 4 palavras, pode ter beneficiário
+        # Pegar apenas as primeiras 4 palavras (nome completo típico)
+        if len(palavras_antes_virgula) > 4:
+            return " ".join(palavras_antes_virgula[:4]).strip()
+        
+        # Caso contrário, retornar tudo que está antes da vírgula
+        return primeira_parte.strip()
+    
+    # 4. Se não há vírgula, detectar múltiplos nomes completos
+    # Um nome completo brasileiro geralmente tem 2-5 palavras
+    palavras = texto_nome.split()
+    
+    if len(palavras) <= 4:
+        # Se tem 4 palavras ou menos, provavelmente é só um nome completo
+        return texto_nome.strip()
+    
+    # Se tem mais de 4 palavras, pode ter múltiplos nomes
+    # ESTRATÉGIA CONSERVADORA: Pegar apenas as primeiras 4 palavras
+    # (nome completo típico: primeiro nome + sobrenomes)
+    # Ex: "Luiz Henrique Goncalves Neto" = 4 palavras
+    return " ".join(palavras[:4]).strip()
+    
+    return texto_nome.strip()
 
 
 def _extrair_campo_entre_labels(linhas: list, label_inicio: str, label_fim: str) -> str:
