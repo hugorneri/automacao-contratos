@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual - Automação de Contratos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step h4 {
+            display: inline-block;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .step p {
+            margin-left: 40px;
+            color: #555;
+        }
+        
+        .step ul {
+            margin-left: 40px;
+            margin-top: 10px;
+        }
+        
+        .step li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning strong {
+            color: #856404;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info strong {
+            color: #0c5460;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success strong {
+            color: #155724;
+        }
+        
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border: 2px dashed #adb5bd;
+            padding: 40px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: #6c757d;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .toc a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        table.placeholder-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        
+        table.placeholder-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        table.placeholder-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table.placeholder-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        table.placeholder-table tbody tr:hover {
+            background: #f1f3ff;
+        }
+        
+        table.placeholder-table .category-row {
+            background: #f0f0f0;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        table.placeholder-table .category-row td {
+            padding: 8px 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .example-box {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        
+        .example-box .placeholder {
+            color: #f38ba8;
+            font-weight: bold;
+        }
+        
+        .example-box .filled {
+            color: #a6e3a1;
+            font-weight: bold;
+        }
+        
+        .example-box .arrow {
+            color: #f9e2af;
+            font-size: 1.2em;
+        }
+        
+        .example-label {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Manual de Instruções</h1>
+            <p>Automação de Contratos - Guia Completo para Usuários</p>
+        </header>
+        
+        <div class="content">
+            <div class="toc">
+                <h3>📑 Índice</h3>
+                <ul>
+                    <li><a href="#introducao">1. Introdução</a></li>
+                    <li><a href="#requisitos">2. Requisitos do Sistema</a></li>
+                    <li><a href="#primeiros-passos">3. Primeiros Passos</a></li>
+                    <li><a href="#usando-sistema">4. Como Usar o Sistema</a></li>
+                    <li><a href="#editar-dados">5. Editar Dados Extraídos</a></li>
+                    <li><a href="#gerar-contratos">6. Gerar Contratos</a></li>
+                    <li><a href="#placeholders">7. Mapeamento de Placeholders</a></li>
+                    <li><a href="#tutorial-placeholders">8. Como Usar Placeholders nos Modelos</a></li>
+                    <li><a href="#problemas">9. Resolução de Problemas</a></li>
+                    <li><a href="#duvidas">10. Dúvidas Frequentes</a></li>
+                </ul>
+            </div>
+            
+            <section id="introducao" class="section">
+                <h2>1. Introdução</h2>
+                <p>Bem-vindo ao sistema de <strong>Automação de Contratos</strong>! Este sistema foi desenvolvido para facilitar o processo de geração de contratos de trabalho, extraindo automaticamente informações das fichas cadastrais dos empregados em formato PDF.</p>
+                
+                <div class="info">
+                    <strong>💡 O que este sistema faz?</strong><br>
+                    O sistema lê fichas de empregados em PDF, extrai automaticamente os dados necessários e preenche modelos de contratos pré-configurados, economizando tempo e reduzindo erros manuais.
+                </div>
+            </section>
+            
+            <section id="requisitos" class="section">
+                <h2>2. Requisitos do Sistema</h2>
+                
+                <div class="step">
+                    <h4><span class="step-number">✓</span> Antes de começar, verifique:</h4>
+                    <ul>
+                        <li>O sistema está instalado e funcionando corretamente</li>
+                        <li>Você tem acesso às fichas de empregados em formato PDF</li>
+                        <li>Os modelos de contratos estão na pasta <code>Modelos</code></li>
+                        <li>Você tem permissão para salvar arquivos na pasta de destino escolhida</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="primeiros-passos" class="section">
+                <h2>3. Primeiros Passos</h2>
+                
+                <div class="step">
+                    <h4><span class="step-number">1</span> Iniciar o Sistema</h4>
+                    <p>Execute o programa <code>main.py</code> ou o executável fornecido. A interface do sistema será aberta automaticamente.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Conhecer a Interface</h4>
+                    <p>A tela está dividida em duas áreas principais:</p>
+                    <ul>
+                        <li><strong>Painel Esquerdo (Sidebar):</strong> Contém os botões e controles principais</li>
+                        <li><strong>Painel Direito:</strong> Exibe os dados do empregado para edição</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="usando-sistema" class="section">
+                <h2>4. Como Usar o Sistema</h2>
+                
+                <h3>4.1. Selecionar Fichas de Empregados</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Clique no botão "📂 Selecionar PDFs"</h4>
+                    <p>Localizado na seção <span class="highlight">"1. FICHAS DE EMPREGADO"</span> do painel esquerdo.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Escolha os arquivos PDF</h4>
+                    <p>Na janela que abrir, navegue até a pasta onde estão as fichas dos empregados. Você pode selecionar múltiplos arquivos PDF de uma vez:</p>
+                    <ul>
+                        <li>Para selecionar um arquivo: Clique nele</li>
+                        <li>Para selecionar múltiplos arquivos: Mantenha a tecla <code>Ctrl</code> pressionada e clique em cada arquivo desejado</li>
+                        <li>Para selecionar um intervalo: Clique no primeiro arquivo, mantenha <code>Shift</code> pressionado e clique no último</li>
+                    </ul>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">3</span> Confirme a seleção</h4>
+                    <p>Clique em <strong>"Abrir"</strong> ou <strong>"Selecionar"</strong> para confirmar. O sistema começará a processar os arquivos automaticamente.</p>
+                </div>
+                
+                <div class="info">
+                    <strong>⏳ Processamento Automático</strong><br>
+                    Após selecionar os PDFs, o sistema extrairá automaticamente os dados de cada ficha. Você verá uma mensagem de status indicando o progresso. Aguarde até que todos os arquivos sejam processados.
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Sucesso!</strong><br>
+                    Quando o processamento terminar, você verá uma lista dos arquivos processados com um ícone ✅ ao lado de cada um. Se algum arquivo tiver problemas, aparecerá um ícone ❌.
+                </div>
+                
+                <h3>4.2. Visualizar Dados Extraídos</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Navegar entre empregados</h4>
+                    <p>Após o processamento, os dados do primeiro empregado aparecerão automaticamente no painel direito. Use os botões <strong>"◀ Anterior"</strong> e <strong>"Próximo ▶"</strong> para navegar entre os empregados processados.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Verificar informações</h4>
+                    <p>Revise todos os campos extraídos para garantir que estão corretos. Os campos disponíveis incluem:</p>
+                    <ul>
+                        <li>Dados da Empresa (Nome, CNPJ, Endereço)</li>
+                        <li>Dados do Empregado (Nome, CPF, RG, CTPS, etc.)</li>
+                        <li>Informações de Trabalho (Função, Salário, Data de Admissão, etc.)</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="editar-dados" class="section">
+                <h2>5. Editar Dados Extraídos</h2>
+                
+                <div class="step">
+                    <h4><span class="step-number">1</span> Localizar o campo</h4>
+                    <p>No painel direito, encontre o campo que deseja editar. Todos os campos são editáveis diretamente na tela.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Fazer a correção</h4>
+                    <p>Clique no campo desejado e digite ou corrija a informação. As alterações são salvas automaticamente quando você navegar para outro empregado ou gerar os contratos.</p>
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Atenção!</strong><br>
+                    Sempre revise os dados antes de gerar os contratos. Erros nos dados podem resultar em contratos incorretos. Os dados são salvos automaticamente quando você navega entre empregados ou ao gerar os contratos.
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">3</span> Navegar entre empregados</h4>
+                    <p>Use os botões de navegação para revisar e editar os dados de todos os empregados antes de gerar os contratos.</p>
+                </div>
+            </section>
+            
+            <section id="gerar-contratos" class="section">
+                <h2>6. Gerar Contratos</h2>
+                
+                <h3>6.1. Selecionar Modelos de Contrato</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Verificar modelos disponíveis</h4>
+                    <p>Na seção <span class="highlight">"2. MODELOS DE CONTRATO"</span> do painel esquerdo, você verá uma lista de todos os modelos de contrato disponíveis na pasta <code>Modelos</code>.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Marcar/Desmarcar modelos</h4>
+                    <p>Use as caixas de seleção (checkboxes) ao lado de cada modelo para escolher quais contratos deseja gerar:</p>
+                    <ul>
+                        <li><strong>Marcado (✓):</strong> O contrato será gerado</li>
+                        <li><strong>Desmarcado:</strong> O contrato não será gerado</li>
+                    </ul>
+                    <p>Por padrão, todos os modelos estão marcados.</p>
+                </div>
+                
+                <h3>6.2. Gerar os Contratos</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Escolher pasta de destino</h4>
+                    <p>Clique no botão <strong>"⚡ Gerar Contratos"</strong> na seção <span class="highlight">"3. GERAR CONTRATOS"</span>. Uma janela será aberta para você escolher onde salvar os contratos gerados.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Selecionar a pasta</h4>
+                    <p>Navegue até a pasta onde deseja salvar os contratos e clique em <strong>"Selecionar Pasta"</strong> ou <strong>"OK"</strong>.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">3</span> Aguardar processamento</h4>
+                    <p>O botão mudará para <strong>"⏳ Gerando..."</strong> e você verá uma mensagem de status. Aguarde até que todos os contratos sejam gerados. O tempo depende da quantidade de empregados e modelos selecionados.</p>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Contratos Gerados!</strong><br>
+                    Quando o processo terminar, você verá uma mensagem informando quantos contratos foram gerados com sucesso. A pasta de destino será aberta automaticamente para você visualizar os arquivos.
+                </div>
+                
+                <h3>6.3. Estrutura dos Arquivos Gerados</h3>
+                <div class="step">
+                    <h4>Organização dos arquivos</h4>
+                    <p>Os contratos são organizados da seguinte forma:</p>
+                    <ul>
+                        <li>Uma pasta é criada para cada empregado (usando o nome do empregado)</li>
+                        <li>Dentro de cada pasta, os contratos são salvos com o nome do modelo seguido do nome do empregado</li>
+                        <li>Exemplo: <code>Contrato de Trabalho - João Silva.docx</code></li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="placeholders" class="section">
+                <h2>7. Mapeamento de Placeholders</h2>
+                <p>Os <strong>placeholders</strong> são marcadores especiais usados nos modelos de contrato. Durante a geração, cada placeholder é substituído automaticamente pelo valor extraído da ficha do empregado. Abaixo está a lista completa de todos os placeholders disponíveis no sistema.</p>
+                
+                <div class="info">
+                    <strong>💡 O que é um placeholder?</strong><br>
+                    É um texto entre chaves duplas, como <code>{{NOME}}</code>, que serve de "espaço reservado" dentro do modelo de contrato. Quando o sistema gera o contrato, ele troca esse texto pelo dado real do empregado (ex: "João da Silva").
+                </div>
+                
+                <table class="placeholder-table">
+                    <thead>
+                        <tr>
+                            <th>Placeholder</th>
+                            <th>Descrição</th>
+                            <th>Exemplo de Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-row"><td colspan="3">Dados da Empresa</td></tr>
+                        <tr>
+                            <td><code>{{EMPRESA}}</code></td>
+                            <td>Nome / Razão social da empresa</td>
+                            <td>Empresa ABC Ltda</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{EMPRESA_CNPJ}}</code></td>
+                            <td>CNPJ da empresa</td>
+                            <td>12.345.678/0001-90</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{EMPRESA_ENDERECO}}</code></td>
+                            <td>Endereço completo da empresa</td>
+                            <td>Rua das Flores, 100, Centro, Campinas, SP</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{CIDADE}}</code></td>
+                            <td>Cidade (extraída do endereço da empresa)</td>
+                            <td>Campinas</td>
+                        </tr>
+                        
+                        <tr class="category-row"><td colspan="3">Dados Pessoais do Empregado</td></tr>
+                        <tr>
+                            <td><code>{{NOME}}</code></td>
+                            <td>Nome completo do empregado</td>
+                            <td>João da Silva</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{CPF}}</code></td>
+                            <td>CPF do empregado</td>
+                            <td>123.456.789-00</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{RG}}</code></td>
+                            <td>RG (Cédula de Identidade)</td>
+                            <td>12.345.678</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{CTPS}}</code></td>
+                            <td>Número da CTPS</td>
+                            <td>12345</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{CTPS_SERIE}}</code></td>
+                            <td>Série da CTPS</td>
+                            <td>0001</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{DATA_NASCIMENTO}}</code></td>
+                            <td>Data de nascimento</td>
+                            <td>15/03/1990</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{LOCAL_NASCIMENTO}}</code></td>
+                            <td>Local de nascimento</td>
+                            <td>Campinas</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{PAIS_NACIONALIDADE}}</code></td>
+                            <td>País / Nacionalidade</td>
+                            <td>Brasileiro(a)</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{ESTADO_CIVIL}}</code></td>
+                            <td>Estado civil</td>
+                            <td>Solteiro</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{ENDERECO}}</code></td>
+                            <td>Endereço residencial do empregado</td>
+                            <td>Rua dos Lírios, 50, Jardim, Campinas, SP</td>
+                        </tr>
+                        
+                        <tr class="category-row"><td colspan="3">Informações de Trabalho</td></tr>
+                        <tr>
+                            <td><code>{{FUNCAO}}</code></td>
+                            <td>Cargo / Função do empregado</td>
+                            <td>Auxiliar Administrativo</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{SALARIO}}</code></td>
+                            <td>Salário (valor numérico)</td>
+                            <td>2.500,00</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{SALARIO_EXTENSO}}</code></td>
+                            <td>Salário por extenso</td>
+                            <td>dois mil e quinhentos reais</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{DATA_ADMISSAO}}</code></td>
+                            <td>Data de admissão</td>
+                            <td>01/02/2026</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{DATA_LOCAL_ASSINATURA}}</code></td>
+                            <td>Data e local da assinatura (formatado)</td>
+                            <td>Campinas, 01 de fevereiro de 2026</td>
+                        </tr>
+                        
+                        <tr class="category-row"><td colspan="3">Contrato de Experiência</td></tr>
+                        <tr>
+                            <td><code>{{PERIODO_EXPERIENCIA}}</code></td>
+                            <td>Período de experiência (em dias)</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{QUANTIDADE_DIAS}}</code></td>
+                            <td>Quantidade de dias do contrato</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{DATA_FINAL}}</code></td>
+                            <td>Data final do contrato de experiência</td>
+                            <td>17/03/2026</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{DIAS_PRORROGACAO}}</code></td>
+                            <td>Dias de prorrogação</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td><code>{{FIM_PRORROGACAO}}</code></td>
+                            <td>Data de fim da prorrogação</td>
+                            <td>01/05/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="warning">
+                    <strong>⚠️ Importante:</strong> Os nomes dos placeholders são <strong>sensíveis a maiúsculas/minúsculas</strong>. Use exatamente como mostrado na tabela acima (tudo em MAIÚSCULAS). Exemplo: <code>{{NOME}}</code> funciona, mas <code>{{nome}}</code> ou <code>{{Nome}}</code> <strong>não</strong> funcionam.
+                </div>
+            </section>
+            
+            <section id="tutorial-placeholders" class="section">
+                <h2>8. Como Usar Placeholders nos Modelos</h2>
+                <p>Esta seção ensina como criar ou editar modelos de contrato para que o sistema preencha automaticamente os dados dos empregados.</p>
+                
+                <h3>8.1. Regras Básicas</h3>
+                <div class="step">
+                    <h4><span class="step-number">!</span> Regras para os placeholders</h4>
+                    <ul>
+                        <li>Sempre use <strong>chaves duplas</strong>: <code>{{NOME_DO_CAMPO}}</code></li>
+                        <li>O nome do campo deve estar em <strong>MAIÚSCULAS</strong> e ser exatamente igual ao da tabela acima</li>
+                        <li>Não coloque espaços dentro das chaves: <code>{{ NOME }}</code> pode não funcionar</li>
+                        <li>O placeholder pode estar em qualquer parte do texto: parágrafos, tabelas, cabeçalhos ou rodapés</li>
+                        <li>Os valores preenchidos automaticamente aparecerão em <strong>negrito</strong> no contrato final</li>
+                    </ul>
+                </div>
+                
+                <h3>8.2. Passo a Passo: Editar um Modelo Existente</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Abrir o modelo</h4>
+                    <p>Navegue até a pasta <code>Modelos</code> do sistema e abra o arquivo <code>.docx</code> desejado no <strong>Microsoft Word</strong>.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Localizar onde inserir o placeholder</h4>
+                    <p>Encontre no texto do contrato o local onde a informação deve ser preenchida automaticamente. Por exemplo, onde aparece o nome do empregado.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">3</span> Digitar o placeholder</h4>
+                    <p>Apague o texto de exemplo e digite o placeholder correspondente com as chaves duplas. Por exemplo, onde estava "Fulano de Tal", digite <code>{{NOME}}</code>.</p>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Dica crucial:</strong> Ao digitar o placeholder no Word, <strong>digite tudo de uma vez, sem pausas longas</strong>. Se o Word dividir o texto em partes diferentes internamente (o que pode acontecer ao copiar/colar ou editar letra por letra), o placeholder pode não ser reconhecido. Em caso de dúvida, apague o texto e redigite <code>{{NOME}}</code> de forma contínua.
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">4</span> Salvar o modelo</h4>
+                    <p>Salve o arquivo normalmente (<code>Ctrl + S</code>). Certifique-se de que continua salvo como <code>.docx</code> na pasta <code>Modelos</code>.</p>
+                </div>
+                
+                <h3>8.3. Passo a Passo: Criar um Modelo Novo</h3>
+                <div class="step">
+                    <h4><span class="step-number">1</span> Criar o documento</h4>
+                    <p>Abra o <strong>Microsoft Word</strong> e crie um novo documento ou copie um modelo existente.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">2</span> Escrever o texto do contrato</h4>
+                    <p>Escreva o contrato normalmente. Nos locais onde deve entrar uma informação variável (nome, CPF, salário, etc.), insira o placeholder correspondente.</p>
+                </div>
+                
+                <div class="step">
+                    <h4><span class="step-number">3</span> Salvar na pasta correta</h4>
+                    <p>Salve o arquivo como <code>.docx</code> dentro da pasta <code>Modelos</code> do sistema. O novo modelo aparecerá automaticamente na lista de modelos disponíveis na próxima vez que o sistema for aberto.</p>
+                </div>
+                
+                <h3>8.4. Exemplo Prático</h3>
+                <p>Veja como um trecho de modelo fica <strong>antes</strong> e <strong>depois</strong> da geração:</p>
+                
+                <p class="example-label">No modelo (.docx) você escreve:</p>
+                <div class="example-box">
+                    A empresa <span class="placeholder">{{EMPRESA}}</span>, inscrita no CNPJ sob nº <span class="placeholder">{{EMPRESA_CNPJ}}</span>,
+                    com sede em <span class="placeholder">{{EMPRESA_ENDERECO}}</span>, neste ato denominada
+                    EMPREGADORA, e o(a) Sr(a). <span class="placeholder">{{NOME}}</span>, portador(a) do CPF nº
+                    <span class="placeholder">{{CPF}}</span>, RG nº <span class="placeholder">{{RG}}</span>, CTPS nº <span class="placeholder">{{CTPS}}</span>
+                    série <span class="placeholder">{{CTPS_SERIE}}</span>, residente em <span class="placeholder">{{ENDERECO}}</span>,
+                    neste ato denominado(a) EMPREGADO(A), celebram o presente contrato de
+                    experiência pelo prazo de <span class="placeholder">{{PERIODO_EXPERIENCIA}}</span> dias, com início em
+                    <span class="placeholder">{{DATA_ADMISSAO}}</span> e término em <span class="placeholder">{{DATA_FINAL}}</span>.
+                </div>
+                
+                <p class="example-label">O sistema gera o contrato preenchido assim:</p>
+                <div class="example-box">
+                    A empresa <span class="filled">Empresa ABC Ltda</span>, inscrita no CNPJ sob nº <span class="filled">12.345.678/0001-90</span>,
+                    com sede em <span class="filled">Rua das Flores, 100, Centro, Campinas, SP</span>, neste ato denominada
+                    EMPREGADORA, e o(a) Sr(a). <span class="filled">João da Silva</span>, portador(a) do CPF nº
+                    <span class="filled">123.456.789-00</span>, RG nº <span class="filled">12.345.678</span>, CTPS nº <span class="filled">12345</span>
+                    série <span class="filled">0001</span>, residente em <span class="filled">Rua dos Lírios, 50, Jardim, Campinas, SP</span>,
+                    neste ato denominado(a) EMPREGADO(A), celebram o presente contrato de
+                    experiência pelo prazo de <span class="filled">45</span> dias, com início em
+                    <span class="filled">01/02/2026</span> e término em <span class="filled">17/03/2026</span>.
+                </div>
+                
+                <h3>8.5. Exemplo: Cláusula de Prorrogação</h3>
+                <p>Use os placeholders de prorrogação para cláusulas sobre extensão do contrato:</p>
+                
+                <p class="example-label">No modelo:</p>
+                <div class="example-box">
+                    O presente contrato poderá ser prorrogado por mais <span class="placeholder">{{DIAS_PRORROGACAO}}</span> dias,
+                    encerrando-se em <span class="placeholder">{{FIM_PRORROGACAO}}</span>, conforme legislação vigente.
+                </div>
+                
+                <p class="example-label">Resultado gerado:</p>
+                <div class="example-box">
+                    O presente contrato poderá ser prorrogado por mais <span class="filled">45</span> dias,
+                    encerrando-se em <span class="filled">01/05/2026</span>, conforme legislação vigente.
+                </div>
+                
+                <h3>8.6. Exemplo: Cláusula de Remuneração</h3>
+                
+                <p class="example-label">No modelo:</p>
+                <div class="example-box">
+                    O EMPREGADO receberá o salário mensal de R$ <span class="placeholder">{{SALARIO}}</span>
+                    (<span class="placeholder">{{SALARIO_EXTENSO}}</span>), a ser pago até o 5º dia útil do mês subsequente.
+                </div>
+                
+                <p class="example-label">Resultado gerado:</p>
+                <div class="example-box">
+                    O EMPREGADO receberá o salário mensal de R$ <span class="filled">2.500,00</span>
+                    (<span class="filled">dois mil e quinhentos reais</span>), a ser pago até o 5º dia útil do mês subsequente.
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Pronto!</strong><br>
+                    Agora você sabe como usar os placeholders nos modelos de contrato. Lembre-se: qualquer placeholder da tabela da seção 7 pode ser usado em qualquer parte do documento Word.
+                </div>
+            </section>
+            
+            <section id="problemas" class="section">
+                <h2>9. Resolução de Problemas</h2>
+                
+                <h3>7.1. Arquivo PDF não foi processado</h3>
+                <div class="warning">
+                    <strong>Problema:</strong> Um arquivo aparece com ícone ❌ na lista<br>
+                    <strong>Solução:</strong>
+                    <ul>
+                        <li>Verifique se o arquivo PDF não está corrompido</li>
+                        <li>Certifique-se de que o PDF contém texto (não é apenas uma imagem escaneada)</li>
+                        <li>Tente abrir o PDF em outro programa para confirmar que está acessível</li>
+                        <li>Se o problema persistir, entre em contato com o suporte técnico</li>
+                    </ul>
+                </div>
+                
+                <h3>7.2. Dados extraídos incorretamente</h3>
+                <div class="info">
+                    <strong>Solução:</strong> Você pode editar manualmente qualquer campo na tela antes de gerar os contratos. Basta clicar no campo e corrigir a informação.
+                </div>
+                
+                <h3>7.3. Contratos não foram gerados</h3>
+                <div class="warning">
+                    <strong>Verifique:</strong>
+                    <ul>
+                        <li>Se pelo menos um modelo de contrato está marcado</li>
+                        <li>Se você tem permissão para escrever na pasta de destino escolhida</li>
+                        <li>Se há espaço suficiente no disco</li>
+                        <li>Se os modelos de contrato estão na pasta <code>Modelos</code></li>
+                    </ul>
+                </div>
+                
+                <h3>7.4. Sistema está lento</h3>
+                <div class="info">
+                    <strong>Dicas:</strong>
+                    <ul>
+                        <li>Processar muitos arquivos ao mesmo tempo pode demorar. Aguarde pacientemente.</li>
+                        <li>Evite processar mais de 50 arquivos por vez</li>
+                        <li>Feche outros programas pesados enquanto usa o sistema</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="duvidas" class="section">
+                <h2>10. Dúvidas Frequentes</h2>
+                
+                <div class="step">
+                    <h4>Posso processar quantos arquivos por vez?</h4>
+                    <p>Sim, você pode selecionar múltiplos arquivos PDF de uma vez. Recomendamos processar até 50 arquivos por vez para melhor performance.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>Os dados são salvos automaticamente?</h4>
+                    <p>Sim, as alterações nos dados são salvas automaticamente quando você navega para outro empregado ou ao gerar os contratos.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>Posso editar os dados depois de gerar os contratos?</h4>
+                    <p>Sim, você pode editar os dados a qualquer momento antes de gerar os contratos. Após gerar, você precisaria processar novamente os PDFs para alterar os dados.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>Onde ficam salvos os contratos gerados?</h4>
+                    <p>Os contratos são salvos na pasta que você escolher quando clicar em "Gerar Contratos". A pasta será aberta automaticamente após a geração.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>Posso gerar apenas alguns modelos de contrato?</h4>
+                    <p>Sim, use as caixas de seleção ao lado de cada modelo para marcar apenas os que deseja gerar.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>O que fazer se um campo importante não foi extraído?</h4>
+                    <p>Você pode preencher manualmente qualquer campo na tela antes de gerar os contratos. Todos os campos são editáveis.</p>
+                </div>
+            </section>
+            
+            <div class="info" style="margin-top: 40px;">
+                <strong>📞 Precisa de Ajuda?</strong><br>
+                Se você encontrar problemas que não foram resolvidos neste manual, entre em contato com a equipe de TI através dos canais oficiais de suporte.
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Automação de Contratos</strong> - Versão 1.0</p>
+            <p>T.I Automações - © 2026</p>
+        </footer>
+    </div>
+</body>
+</html>

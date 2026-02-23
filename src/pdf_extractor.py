@@ -88,6 +88,15 @@ def extrair_dados_ficha(caminho_pdf: str) -> dict:
     # --- Dias de prorrogação ---
     dados["DIAS_PRORROGACAO"] = _extrair_dias_prorrogacao(linhas)
     
+    # --- Data final do contrato de experiência ---
+    dados["DATA_FINAL"] = _extrair_data_final_experiencia(linhas)
+    
+    # --- Fim da prorrogação ---
+    dados["FIM_PRORROGACAO"] = _extrair_fim_prorrogacao_data(linhas)
+    
+    # --- Quantidade de dias (contrato de experiência) ---
+    dados["QUANTIDADE_DIAS"] = _extrair_periodo_experiencia(linhas)
+    
     # --- Data de admissão e local de assinatura ---
     data_admissao = _extrair_data_admissao(linhas)
     dados["DATA_ADMISSAO"] = data_admissao if data_admissao else ""
@@ -524,6 +533,30 @@ def _extrair_dias_prorrogacao(linhas: list) -> str:
                             break
                     if not is_date_part and 1 <= int(n) <= 120:
                         return n
+    return ""
+
+
+def _extrair_data_final_experiencia(linhas: list) -> str:
+    """Extrai a data final do contrato de experiência (primeira data na linha de valores)."""
+    for i, linha in enumerate(linhas):
+        if "Data final" in linha:
+            if i + 1 < len(linhas):
+                texto = linhas[i + 1].strip()
+                datas = re.findall(r"\d{2}/\d{2}/\d{4}", texto)
+                if datas:
+                    return datas[0]
+    return ""
+
+
+def _extrair_fim_prorrogacao_data(linhas: list) -> str:
+    """Extrai a data de fim da prorrogação (segunda data na linha de valores)."""
+    for i, linha in enumerate(linhas):
+        if "prorrogação" in linha.lower() and ("fim" in linha.lower() or "data final" in linha.lower()):
+            if i + 1 < len(linhas):
+                texto = linhas[i + 1].strip()
+                datas = re.findall(r"\d{2}/\d{2}/\d{4}", texto)
+                if len(datas) >= 2:
+                    return datas[1]
     return ""
 
 

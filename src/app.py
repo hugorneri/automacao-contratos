@@ -6,6 +6,7 @@ Usa CustomTkinter para uma aparência moderna.
 import os
 import sys
 import threading
+import webbrowser
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from typing import Dict, List
@@ -47,7 +48,10 @@ CAMPOS_EDITAVEIS = [
     ("SALARIO", "Salário"),
     ("SALARIO_EXTENSO", "Salário por Extenso"),
     ("PERIODO_EXPERIENCIA", "Período Experiência (dias)"),
+    ("QUANTIDADE_DIAS", "Quantidade de Dias"),
+    ("DATA_FINAL", "Data Final Experiência"),
     ("DIAS_PRORROGACAO", "Dias de Prorrogação"),
+    ("FIM_PRORROGACAO", "Fim da Prorrogação"),
     ("DATA_ADMISSAO", "Data de Admissão"),
     ("DATA_LOCAL_ASSINATURA", "Data/Local Assinatura"),
 ]
@@ -63,6 +67,7 @@ class App(ctk.CTk):
         
         # Estado da aplicação
         self.dados_empregados: List[Dict[str, str]] = []
+        self.arquivos_pdfs: List[str] = []  # Lista de caminhos dos PDFs carregados
         self.indice_atual = -1
         self.campos_entries: Dict[str, ctk.CTkEntry] = {}
         self.template_vars: Dict[str, ctk.BooleanVar] = {}
@@ -84,9 +89,10 @@ class App(ctk.CTk):
     # Sidebar (painel esquerdo)
     # ──────────────────────────────────────────
     def _criar_sidebar(self):
-        sidebar = ctk.CTkFrame(self, width=280, corner_radius=0)
-        sidebar.grid(row=0, column=0, sticky="nsew")
-        sidebar.grid_propagate(False)
+        # Usar frame rolável para garantir que todos os botões
+        # fiquem acessíveis em telas menores (layout mais "responsivo")
+        sidebar = ctk.CTkScrollableFrame(self, width=280, corner_radius=0)
+        sidebar.grid(row=0, column=0, sticky="ns")
         
         # Título
         titulo = ctk.CTkLabel(
@@ -100,7 +106,19 @@ class App(ctk.CTk):
             font=ctk.CTkFont(size=12),
             text_color="gray"
         )
-        subtitulo.pack(pady=(0, 20))
+        subtitulo.pack(pady=(0, 15))
+        
+        # Botão de Manual (no topo para fácil acesso)
+        btn_manual = ctk.CTkButton(
+            sidebar, 
+            text="📖  Manual de Instruções",
+            command=self._abrir_manual,
+            height=35,
+            font=ctk.CTkFont(size=12),
+            fg_color="#6c757d",
+            hover_color="#5a6268"
+        )
+        btn_manual.pack(padx=20, pady=(0, 15), fill="x")
         
         # Separador
         ctk.CTkFrame(sidebar, height=2, fg_color="gray30").pack(fill="x", padx=20, pady=5)
@@ -308,6 +326,12 @@ class App(ctk.CTk):
         for widget in self.frame_lista_pdfs.winfo_children():
             widget.destroy()
         
+        # Limpar dados anteriores se for uma nova seleção completa
+        # (opcional: pode ser modificado para adicionar ao invés de substituir)
+        self.dados_empregados = []
+        self.arquivos_pdfs = []
+        self.indice_atual = -1
+        
         self.label_status_pdfs.configure(text="⏳ Extraindo dados...")
         self.update()
         
@@ -318,44 +342,115 @@ class App(ctk.CTk):
     def _processar_pdfs(self, arquivos: list):
         """Processa os PDFs em background."""
         self.dados_empregados = extrair_multiplos_pdfs(arquivos)
+        # Manter referência aos arquivos para poder removê-los depois
+        self.arquivos_pdfs = arquivos.copy()
         
         # Atualizar UI na thread principal
         self.after(0, lambda: self._atualizar_apos_extracao(arquivos))
     
     def _atualizar_apos_extracao(self, arquivos: list):
         """Atualiza a interface após extração."""
-        # Atualizar lista de arquivos
-        for widget in self.frame_lista_pdfs.winfo_children():
-            widget.destroy()
-        
-        for i, arquivo in enumerate(arquivos):
-            nome = os.path.basename(arquivo)
-            nome_curto = nome[:30] + "..." if len(nome) > 33 else nome
-            
-            # Verificar se teve erro
-            has_error = "_erro" in self.dados_empregados[i] if i < len(self.dados_empregados) else False
-            cor = "red" if has_error else None
-            
-            lbl = ctk.CTkLabel(
-                self.frame_lista_pdfs,
-                text=f"{'❌' if has_error else '✅'} {nome_curto}",
-                font=ctk.CTkFont(size=11),
-                text_color=cor,
-                anchor="w"
-            )
-            lbl.pack(anchor="w", pady=1)
-        
-        qtd = len(self.dados_empregados)
-        erros = sum(1 for d in self.dados_empregados if "_erro" in d)
-        self.label_status_pdfs.configure(
-            text=f"✅ {qtd - erros} fichas extraídas" + (f" | ❌ {erros} erros" if erros else "")
-        )
+        self._atualizar_lista_fichas()
         
         # Mostrar primeiro empregado
         if self.dados_empregados:
             self.indice_atual = 0
             self._atualizar_formulario()
             self._atualizar_navegacao()
+    
+    def _atualizar_lista_fichas(self):
+        """Atualiza a lista de fichas exibida na interface."""
+        # Limpar lista anterior
+        for widget in self.frame_lista_pdfs.winfo_children():
+            widget.destroy()
+        
+        # Criar um frame para cada arquivo com botão de remoção
+        for i, arquivo in enumerate(self.arquivos_pdfs):
+            if i >= len(self.dados_empregados):
+                continue
+                
+            nome = os.path.basename(arquivo)
+            nome_curto = nome[:25] + "..." if len(nome) > 28 else nome
+            
+            # Verificar se teve erro
+            has_error = "_erro" in self.dados_empregados[i] if i < len(self.dados_empregados) else False
+            cor = "red" if has_error else None
+            
+            # Frame para cada item da lista
+            frame_item = ctk.CTkFrame(self.frame_lista_pdfs, fg_color="transparent")
+            frame_item.pack(fill="x", pady=2, padx=5)
+            
+            # Label com nome do arquivo
+            lbl = ctk.CTkLabel(
+                frame_item,
+                text=f"{'❌' if has_error else '✅'} {nome_curto}",
+                font=ctk.CTkFont(size=11),
+                text_color=cor,
+                anchor="w"
+            )
+            lbl.pack(side="left", fill="x", expand=True, padx=(0, 5))
+            
+            # Botão X para remover (usar função auxiliar para capturar índice corretamente)
+            def criar_comando_remover(indice):
+                return lambda: self._remover_ficha(indice)
+            
+            btn_remover = ctk.CTkButton(
+                frame_item,
+                text="✕",
+                width=25,
+                height=25,
+                font=ctk.CTkFont(size=14, weight="bold"),
+                fg_color="#dc3545",
+                hover_color="#c82333",
+                command=criar_comando_remover(i)
+            )
+            btn_remover.pack(side="right")
+        
+        # Atualizar status
+        qtd = len(self.dados_empregados)
+        erros = sum(1 for d in self.dados_empregados if "_erro" in d)
+        self.label_status_pdfs.configure(
+            text=f"✅ {qtd - erros} fichas extraídas" + (f" | ❌ {erros} erros" if erros else "")
+        )
+    
+    def _remover_ficha(self, indice: int):
+        """Remove uma ficha da lista."""
+        if indice < 0 or indice >= len(self.dados_empregados):
+            return
+        
+        # Remover da lista de dados
+        self.dados_empregados.pop(indice)
+        
+        # Remover da lista de arquivos
+        if indice < len(self.arquivos_pdfs):
+            self.arquivos_pdfs.pop(indice)
+        
+        # Ajustar índice atual se necessário
+        if self.indice_atual >= len(self.dados_empregados):
+            self.indice_atual = len(self.dados_empregados) - 1
+        
+        # Se não há mais fichas, limpar formulário
+        if not self.dados_empregados:
+            self.indice_atual = -1
+            for entry in self.campos_entries.values():
+                entry.delete(0, "end")
+            self.label_empregado.configure(text="Selecione fichas PDF para começar")
+            self.label_status_pdfs.configure(text="Nenhuma ficha selecionada")
+            self._atualizar_navegacao()
+        else:
+            # Ajustar índice se necessário
+            if self.indice_atual < 0:
+                self.indice_atual = 0
+            elif self.indice_atual >= len(self.dados_empregados):
+                self.indice_atual = len(self.dados_empregados) - 1
+            
+            # Atualizar formulário com o empregado atual
+            if self.indice_atual >= 0:
+                self._atualizar_formulario()
+                self._atualizar_navegacao()
+        
+        # Atualizar lista visual
+        self._atualizar_lista_fichas()
     
     # ──────────────────────────────────────────
     # Atualizar o formulário com dados do empregado
@@ -498,6 +593,24 @@ class App(ctk.CTk):
         
         # Abrir pasta de saída
         os.startfile(pasta_saida)
+    
+    # ──────────────────────────────────────────
+    # Abrir manual de instruções
+    # ──────────────────────────────────────────
+    def _abrir_manual(self):
+        """Abre o manual de instruções no navegador padrão."""
+        caminho_manual = os.path.join(BASE_DIR, "manual.html")
+        
+        if os.path.exists(caminho_manual):
+            # Abrir no navegador padrão
+            caminho_absoluto = os.path.abspath(caminho_manual)
+            webbrowser.open(f"file:///{caminho_absoluto.replace(os.sep, '/')}")
+        else:
+            messagebox.showerror(
+                "Erro",
+                f"Arquivo do manual não encontrado:\n{caminho_manual}\n\n"
+                "Entre em contato com o suporte técnico."
+            )
 
 
 def iniciar_app():
