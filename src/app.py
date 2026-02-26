@@ -10,6 +10,7 @@ import webbrowser
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from typing import Dict, List
+import shutil
 
 from src.pdf_extractor import extrair_dados_ficha, extrair_multiplos_pdfs
 from src.doc_filler import preencher_contrato, gerar_contratos, listar_templates
@@ -162,10 +163,30 @@ class App(ctk.CTk):
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color="#4A9EFF"
         ).pack(pady=(5, 5), padx=20, anchor="w")
-        
+
+        btn_adicionar_template = ctk.CTkButton(
+            sidebar,
+            text="➕  Adicionar modelo (.docx)",
+            command=self._adicionar_template,
+            height=32,
+            font=ctk.CTkFont(size=12)
+        )
+        btn_adicionar_template.pack(padx=20, pady=(0, 5), fill="x")
+
         self.frame_templates = ctk.CTkFrame(sidebar, fg_color="transparent")
         self.frame_templates.pack(padx=20, fill="x")
         self._carregar_templates()
+
+        btn_remover_templates = ctk.CTkButton(
+            sidebar,
+            text="🗑  Remover modelos selecionados",
+            command=self._remover_templates,
+            height=30,
+            font=ctk.CTkFont(size=11),
+            fg_color="#dc3545",
+            hover_color="#c82333"
+        )
+        btn_remover_templates.pack(padx=20, pady=(5, 5), fill="x")
         
         # Separador
         ctk.CTkFrame(sidebar, height=2, fg_color="gray30").pack(fill="x", padx=20, pady=10)
@@ -280,6 +301,11 @@ class App(ctk.CTk):
     # Carregar templates
     # ──────────────────────────────────────────
     def _carregar_templates(self):
+        # Limpar UI e estado anterior
+        for widget in self.frame_templates.winfo_children():
+            widget.destroy()
+        self.template_vars.clear()
+
         templates = listar_templates(PASTA_MODELOS)
         
         if not templates:
@@ -309,6 +335,114 @@ class App(ctk.CTk):
             )
             cb.pack(anchor="w", pady=2)
     
+    # ──────────────────────────────────────────
+    # Adicionar novo template (.docx)
+    # ──────────────────────────────────────────
+    def _adicionar_template(self):
+        arquivo = filedialog.askopenfilename(
+            title="Selecionar modelo de contrato (.docx)",
+            filetypes=[("Arquivos Word", "*.docx")],
+            initialdir=PASTA_MODELOS if os.path.exists(PASTA_MODELOS) else BASE_DIR,
+        )
+
+        if not arquivo:
+            return
+
+        if not arquivo.lower().endswith(".docx"):
+            messagebox.showerror(
+                "Arquivo inválido",
+                "Selecione um arquivo .docx válido."
+            )
+            return
+
+        nome_arquivo = os.path.basename(arquivo)
+        destino = os.path.join(PASTA_MODELOS, nome_arquivo)
+
+        try:
+            os.makedirs(PASTA_MODELOS, exist_ok=True)
+
+            if os.path.exists(destino):
+                sobrescrever = messagebox.askyesno(
+                    "Modelo já existe",
+                    f"Já existe um modelo chamado:\n\n{nome_arquivo}\n\n"
+                    "Deseja sobrescrever o arquivo existente?"
+                )
+
+                if not sobrescrever:
+                    base, ext = os.path.splitext(nome_arquivo)
+                    contador = 2
+                    novo_destino = os.path.join(PASTA_MODELOS, f"{base}_{contador}{ext}")
+                    while os.path.exists(novo_destino):
+                        contador += 1
+                        novo_destino = os.path.join(PASTA_MODELOS, f"{base}_{contador}{ext}")
+                    destino = novo_destino
+
+            shutil.copy2(arquivo, destino)
+        except Exception as e:
+            messagebox.showerror(
+                "Erro ao adicionar modelo",
+                "Não foi possível copiar o arquivo selecionado.\n\n"
+                f"Detalhes do erro: {e}"
+            )
+            return
+
+        messagebox.showinfo(
+            "Modelo adicionado",
+            f"O modelo foi adicionado com sucesso:\n\n{os.path.basename(destino)}"
+        )
+
+        self._carregar_templates()
+
+    # ──────────────────────────────────────────
+    # Remover templates selecionados
+    # ──────────────────────────────────────────
+    def _remover_templates(self):
+        templates_marcados = [
+            path for path, var in self.template_vars.items() if var.get()
+        ]
+
+        if not templates_marcados:
+            messagebox.showinfo(
+                "Remover modelos",
+                "Nenhum modelo foi selecionado para remoção."
+            )
+            return
+
+        nomes = "\n".join(os.path.basename(p) for p in templates_marcados)
+        confirmar = messagebox.askyesno(
+            "Confirmar remoção",
+            "Os seguintes modelos serão removidos (arquivos serão apagados da pasta Modelos):\n\n"
+            f"{nomes}\n\n"
+            "Deseja continuar?"
+        )
+
+        if not confirmar:
+            return
+
+        removidos = 0
+        erros = []
+
+        for caminho in templates_marcados:
+            try:
+                if os.path.exists(caminho):
+                    os.remove(caminho)
+                    removidos += 1
+            except Exception as e:
+                erros.append(f"{os.path.basename(caminho)}: {e}")
+
+        if removidos:
+            msg = f"{removidos} modelo(s) removido(s) com sucesso."
+            if erros:
+                msg += f"\n\nAlguns modelos não puderam ser removidos:\n" + "\n".join(erros)
+            messagebox.showinfo("Remover modelos", msg)
+        else:
+            messagebox.showwarning(
+                "Remover modelos",
+                "Nenhum modelo foi removido. Verifique se os arquivos ainda existem na pasta Modelos."
+            )
+
+        self._carregar_templates()
+
     # ──────────────────────────────────────────
     # Selecionar e processar PDFs
     # ──────────────────────────────────────────
